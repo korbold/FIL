@@ -1,0 +1,18 @@
+{
+  "name": "script-filiales",
+  "version": "1.0.0",
+  "description": "Script for processing branch data",
+  "scripts": {
+    "start": "ts-node --transpile-only src/index.ts"
+  },
+  "main": "script.ts",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
