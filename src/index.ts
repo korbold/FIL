@@ -63,7 +63,7 @@ async function main() {
     const payload = new NoveltyModel();
     payload.catalogTypeCode = codigos.catalogTypeCode || row['CATEGORIA'];
     payload.catalogValueCode = codigos.catalogValueCode || row['SUBCATEGORIA'];
-    payload.workAreaCode = 22351;//TODO: Cambiar por el codigo de area respectivo a la filial
+    payload.workAreaCode = 22352;//TODO: Cambiar por el codigo de area respectivo a la filial
     payload.noveltyDate = noveltyDate;
     payload.description = row['DESCRIPCION DE NOVEDAD'];
     payload.canUpdate = true;
@@ -73,6 +73,8 @@ async function main() {
     payload.isMainPersonBlock = false;
     payload.isUpdate = false;
     payload.color = getColorByName(row['COLOR'] || 'ROJO');
+    payload.createdByUser = 'USR2282839'; //TODO: Cambiar por el usuario que esta creando la novedad
+
 
     try {
       const result = await registrarNovedad(payload, token);

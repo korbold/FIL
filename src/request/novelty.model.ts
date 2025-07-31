@@ -45,4 +45,5 @@ export class NoveltyModel {
   device?: string;
   color?: string;
   observationInactive?: string;
+  createdByUser?: string;
 }

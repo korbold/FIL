@@ -1,30 +1,33 @@
 import axios from 'axios';
+import qs from 'qs';
 
-const KEYCLOAK_URL = 'https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token';
-const CLIENT_ID = 'SISEG-SUB-WEB';
-const USERNAME = 'vfheredia';
-const PASSWORD = 'Password01.!';
-
+// Obtener token usando el flujo client_credentials
 export async function getToken(): Promise<string> {
-  const params = new URLSearchParams();
-  params.append('grant_type', 'password');
-  params.append('client_id', CLIENT_ID);
-  params.append('username', USERNAME);
-  params.append('password', PASSWORD);
+  const data = qs.stringify({
+    grant_type: 'client_credentials',
+    client_id: 'CORPORATE-DATA',
+    client_secret: 'cfbb4048-5218-4593-8a74-2e60440cb983'
+  });
+
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Cookie: 'KEYCLOAK_LOCALE=es'
+    },
+    data
+  } as const;
 
   try {
-    const response = await axios.post(KEYCLOAK_URL, params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    const response = await axios.request(config);
     if (response.status === 200 && response.data && response.data.access_token) {
       return response.data.access_token;
-    } else {
-      throw new Error('No se pudo obtener el token');
     }
+    throw new Error('No se pudo obtener el token');
   } catch (error) {
     console.error('Error obteniendo el token:', error);
     throw error;
   }
-} 
+}
