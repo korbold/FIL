@@ -55,6 +55,10 @@ yarn.lock
 
 # dotenv environment variables file
 .env
+.env.production
+.env.test
+# Permitir el archivo de ejemplo
+!.env.example
 
 # IDEs and editors
 .idea/
@@ -69,4 +73,4 @@ yarn.lock
 .DS_Store
 
 # Audit reports
-audit/ 
+audit/

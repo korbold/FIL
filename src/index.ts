@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { leerExcel } from './excel';
 import { getToken } from './auth';
 import { buscarPersona, registrarNovedad, obtenerCatalogs, obtenerCodigosCatalogo } from './api';
@@ -7,7 +8,7 @@ import { NoveltyModel } from './request/novelty.model';
 import { AuditManager } from './audit';
 
 async function main() {
-  const rows = leerExcel('assets/remake.xlsx');
+  const rows = leerExcel('assets/prod.xlsx');
   const token = await getToken();
   
   // Inicializar auditoría
@@ -63,17 +64,38 @@ async function main() {
     const payload = new NoveltyModel();
     payload.catalogTypeCode = codigos.catalogTypeCode || row['CATEGORIA'];
     payload.catalogValueCode = codigos.catalogValueCode || row['SUBCATEGORIA'];
-    payload.workAreaCode = 22352;//TODO: Cambiar por el codigo de area respectivo a la filial
+    payload.workAreaCode = Number(process.env.WORK_AREA_CODE) || 22352;
     payload.noveltyDate = noveltyDate;
     payload.description = row['DESCRIPCION DE NOVEDAD'];
     payload.canUpdate = true;
     payload.catalogueValueCode = codigos.catalogValueCode || row['SUBCATEGORIA'];
     payload.personList = personList;
-    payload.isActive = false;
+    payload.isActive = true;
     payload.isMainPersonBlock = false;
     payload.isUpdate = false;
+    payload.canUpdate = true;
+    payload.complaint = false;
+    payload.isPoliceReport = false;
+    payload.activesDoneCodes = '';
+    payload.repose = false;
+    payload.needAmbulanceService = false;
+    payload.camLocation = process.env.CAM_LOCATION || 'LCD';
+    payload.camSubLocation = process.env.CAM_SUB_LOCATION || 'CAB';
+    payload.descriptionLocation = process.env.DESCRIPTION_LOCATION || 'FILIAL';
+    payload.subTotalNoImp = 0;
+    payload.subTotalImp = 0;
+    payload.iva = 0;
+    payload.amountLeft = 0;
+    payload.noveltyTotal = 0;
+    payload.detectedByEmployee = Number(process.env.DETECTED_BY_EMPLOYEE) || 1713109047;
+    payload.createdByEmployee = Number(process.env.CREATED_BY_EMPLOYEE) || 1713109047;
+    payload.employeePersonCodeCreated = Number(process.env.EMPLOYEE_PERSON_CODE_CREATED) || 69265;
+    payload.employeePersonCodeDetected = Number(process.env.EMPLOYEE_PERSON_CODE_DETECTED) || 69265;
+    payload.status = true;
+    payload.source = '1';
     payload.color = getColorByName(row['COLOR'] || 'ROJO');
-    payload.createdByUser = 'USR2282839'; //TODO: Cambiar por el usuario que esta creando la novedad
+    payload.createdDate = new Date().getTime();
+    payload.createdByUser = process.env.CREATED_BY_USER || 'FR0M';
 
 
     try {
@@ -109,4 +131,4 @@ async function main() {
   auditManager.printSummary();
 }
 
-main(); 
+main();

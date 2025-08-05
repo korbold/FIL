@@ -1,21 +1,24 @@
 import axios from 'axios';
 import qs from 'qs';
+import 'dotenv/config';
 
 // Obtener token usando el flujo client_credentials
 export async function getToken(): Promise<string> {
   const data = qs.stringify({
-    grant_type: 'client_credentials',
-    client_id: 'CORPORATE-DATA',
-    client_secret: 'cfbb4048-5218-4593-8a74-2e60440cb983'
+    grant_type: 'password',
+    client_id: process.env.AUTH_CLIENT_ID || 'SISEGV2-WEB',
+    username: process.env.AUTH_USERNAME || 'smxadmin',
+    password: process.env.AUTH_PASSWORD || 'Password01.',
+    // client_secret: 'cfbb4048-5218-4593-8a74-2e60440cb983'
   });
 
   const config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token',
+    url: process.env.AUTH_URL || 'https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Cookie: 'KEYCLOAK_LOCALE=es'
+      'Cookie': 'sid=311235d0-320c-448e-8473-62895860c244'
     },
     data
   } as const;

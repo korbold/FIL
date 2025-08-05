@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "Script for processing branch data",
   "scripts": {
-    "start": "ts-node --transpile-only src/index.ts"
+    "start": "ts-node --transpile-only src/index.ts",
+    "start:prod": "cp .env.production .env && ts-node --transpile-only src/index.ts",
+    "start:test": "cp .env.test .env && ts-node --transpile-only src/index.ts"
   },
   "main": "script.ts",
   "dependencies": {
     "@types/qs": "^6.14.0",
     "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
     "qs": "^6.14.0",
     "xlsx": "^0.18.5"
   },

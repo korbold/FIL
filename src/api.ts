@@ -1,9 +1,11 @@
+import 'dotenv/config';
 import axios from 'axios';
 import { ResponseVO, PersonVO, CatalogsResponseVO, CatalogTypeVO, CatalogValueVO } from './types';
 import { NoveltyResponseVO } from './novelty-response.vo';
 
-const API_URL_BASE = 'https://aplpre.favorita.ec';
-export const REGISTER_API_URL = API_URL_BASE + '/sisegSubsidiaryServices/api/v1/novelty/createOrUpdateNovelty';
+// Use environment variables with fallback values
+const API_URL_BASE = process.env.API_URL_BASE ?? 'https://aplpre.favorita.ec';
+export const REGISTER_API_URL = API_URL_BASE + '/sisegv2Services/api/v1/migrate/createUpdateNovelty';
 export const FIND_API_URL = API_URL_BASE + '/sisegv2Services/api/v1/external/getPersonByDocumentAndType';
 export const CATALOGS_API_URL = API_URL_BASE + '/sisegSubsidiaryServices/api/v1/catalogs/getCatalogsFil';
 
@@ -85,4 +87,4 @@ export function obtenerCodigosCatalogo(catalogs: CatalogsResponseVO, nombreCateg
     catalogTypeCode: categoria.catalogTypeCode,
     catalogValueCode: subcategoria ? subcategoria.catalogValueCode : null
   };
-} 
+}

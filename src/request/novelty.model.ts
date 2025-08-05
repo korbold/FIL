@@ -46,4 +46,10 @@ export class NoveltyModel {
   color?: string;
   observationInactive?: string;
   createdByUser?: string;
+  createdDate?: number;
+  lastModifiedByUser?: string;
+  lastModifiedDate?: Date;
+  status?: boolean;
+  garmentVo?: string;
+  source?: string;
 }
