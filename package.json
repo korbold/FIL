@@ -5,7 +5,9 @@
   "scripts": {
     "start": "ts-node --transpile-only src/index.ts",
     "start:prod": "cp .env.production .env && ts-node --transpile-only src/index.ts",
-    "start:test": "cp .env.test .env && ts-node --transpile-only src/index.ts"
+    "start:test": "cp .env.test .env && ts-node --transpile-only src/index.ts",
+     "start:prod:win": "node scripts/copy-env.js production && ts-node --transpile-only src/index.ts",
+    "start:test:win": "node scripts/copy-env.js test && ts-node --transpile-only src/index.ts"
   },
   "main": "script.ts",
   "dependencies": {

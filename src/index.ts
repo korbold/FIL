@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import * as path from 'path';
 import { leerExcel } from './excel';
 import { getToken } from './auth';
 import { buscarPersona, registrarNovedad, obtenerCatalogs, obtenerCodigosCatalogo } from './api';
@@ -8,7 +9,7 @@ import { NoveltyModel } from './request/novelty.model';
 import { AuditManager } from './audit';
 
 async function main() {
-  const rows = leerExcel('assets/prod.xlsx');
+  const rows = leerExcel(path.join('assets', 'prod.xlsx'));
   const token = await getToken();
   
   // Inicializar auditoría

@@ -19,8 +19,15 @@ El proyecto utiliza archivos de variables de entorno para configurar diferentes 
 Para usar uno de estos archivos, puede:
 
 1. Copiar manualmente el archivo deseado a `.env`:
+   
+   En macOS/Linux:
    ```bash
    cp .env.production .env
+   ```
+   
+   En Windows:
+   ```bash
+   copy .env.production .env
    ```
 
 2. O usar los scripts predefinidos que hacen esto automáticamente:
@@ -50,6 +57,8 @@ Para usar uno de estos archivos, puede:
 
 ## Ejecución
 
+Los siguientes comandos funcionan en todos los sistemas operativos (Windows, macOS, Linux):
+
 ```bash
 # Usando la configuración en .env (si existe)
 npm start
@@ -60,3 +69,5 @@ npm run start:prod
 # Usando configuración de pruebas
 npm run start:test
 ```
+
+> **Nota para usuarios de Windows**: Los scripts han sido actualizados para ser compatibles con Windows. Ya no es necesario usar comandos específicos de sistema operativo.
