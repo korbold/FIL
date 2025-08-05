@@ -57,7 +57,9 @@ Para usar uno de estos archivos, puede:
 
 ## Ejecución
 
-Los siguientes comandos funcionan en todos los sistemas operativos (Windows, macOS, Linux):
+### Comandos Estándar
+
+Los siguientes comandos funcionan en la mayoría de los sistemas operativos:
 
 ```bash
 # Usando la configuración en .env (si existe)
@@ -70,4 +72,18 @@ npm run start:prod
 npm run start:test
 ```
 
-> **Nota para usuarios de Windows**: Los scripts han sido actualizados para ser compatibles con Windows. Ya no es necesario usar comandos específicos de sistema operativo.
+### Comandos Específicos para Windows
+
+Si experimentas problemas con los comandos estándar en Windows (como el error "'cp' no se reconoce como un comando interno o externo"), utiliza estos comandos alternativos:
+
+```bash
+# Usando configuración de producción en Windows
+npm run start:prod:win
+
+# Usando configuración de pruebas en Windows
+npm run start:test:win
+```
+
+Estos comandos utilizan un script JavaScript (`scripts/copy-env.js`) para copiar los archivos de configuración, evitando así el uso de comandos específicos del sistema operativo como `cp` o `copy`.
+
+> **Nota para usuarios de Windows**: Si los comandos estándar no funcionan, asegúrate de usar los comandos con sufijo `:win` que están específicamente diseñados para ser compatibles con Windows.
