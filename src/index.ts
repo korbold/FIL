@@ -94,6 +94,7 @@ async function main() {
     payload.employeePersonCodeDetected = Number(process.env.EMPLOYEE_PERSON_CODE_DETECTED) || 69265;
     payload.status = true;
     payload.source = '1';
+    payload.device = 'WEB'
     payload.color = getColorByName(row['COLOR'] || 'ROJO');
     payload.createdDate = new Date().getTime();
     payload.createdByUser = process.env.CREATED_BY_USER || 'FR0M';
