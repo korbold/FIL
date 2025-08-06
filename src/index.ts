@@ -9,7 +9,7 @@ import { NoveltyModel } from './request/novelty.model';
 import { AuditManager } from './audit';
 
 async function main() {
-  const rows = leerExcel(path.join('assets', 'prod.xlsx'));
+  const rows = leerExcel(path.join('assets', 'remake.xlsx'));
   const token = await getToken();
   
   // Inicializar auditoría
