@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import * as path from 'path';
 import { leerExcel } from './excel';
-import { getToken } from './auth';
+import { getToken, isTokenExpiringSoon, isTokenValid, getTokenInfo } from './auth';
 import { buscarPersona, registrarNovedad, obtenerCatalogs, obtenerCodigosCatalogo } from './api';
 import { getColorByName } from './colors';
 import { convertirFechaHoraISO } from './utils';
@@ -10,7 +10,28 @@ import { AuditManager } from './audit';
 
 async function main() {
   const rows = leerExcel(path.join('assets', 'remake.xlsx'));
-  const token = await getToken();
+  
+  // Obtener token inicial
+  let token = await getToken();
+  console.log('🔑 Token inicial obtenido');
+  
+  // Validar token inicial
+  if (!isTokenValid()) {
+    console.error('❌ Error: No se pudo obtener un token válido inicial');
+    return;
+  }
+  
+  // Mostrar información del token
+  const tokenInfo = getTokenInfo();
+  if (tokenInfo.hasToken) {
+    if (tokenInfo.realExpiresAt) {
+      console.log(`⏰ Token expira en: ${tokenInfo.realExpiresAt.toLocaleString('es-EC')}`);
+    }
+    if (tokenInfo.expiresAt) {
+      console.log(`🔄 Se renovará en: ${tokenInfo.expiresAt.toLocaleString('es-EC')}`);
+    }
+    console.log(`⏱️  Tiempo restante: ${tokenInfo.timeUntilExpiry}`);
+  }
   
   // Inicializar auditoría
   const auditManager = new AuditManager(rows.length);
@@ -18,8 +39,24 @@ async function main() {
   console.log(`🚀 Iniciando procesamiento de ${rows.length} registros...`);
   
   // Obtener catálogos una sola vez
-  const catalogs = await obtenerCatalogs(token);
-  console.log('Catálogos cargados exitosamente');
+  let catalogs;
+  try {
+    catalogs = await obtenerCatalogs(token);
+    console.log('✅ Catálogos cargados exitosamente');
+    
+    // Verificar que el token siga siendo válido después de obtener catálogos
+    if (!isTokenValid()) {
+      console.log('🔄 Token expirado después de obtener catálogos, renovando...');
+      token = await getToken();
+      if (!isTokenValid()) {
+        console.error('❌ No se pudo renovar el token después de obtener catálogos');
+        return;
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error obteniendo catálogos:', error);
+    return;
+  }
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i] as any;
@@ -29,6 +66,21 @@ async function main() {
     const category = row['CATEGORIA'] || '';
     const subcategory = row['SUBCATEGORIA'] || '';
     const description = row['DESCRIPCION DE NOVEDAD'] || '';
+    
+    // Verificar si el token está próximo a expirar antes de cada operación
+    if (isTokenExpiringSoon() || !isTokenValid()) {
+      console.log('🔄 Token próximo a expirar o inválido, renovando...');
+      token = await getToken();
+      
+      // Verificar que el nuevo token sea válido
+      if (!isTokenValid()) {
+        console.error('❌ No se pudo obtener un token válido');
+        auditManager.recordError(i + 1, documentType, documentNumber, category, subcategory, description, 'Error obteniendo token válido');
+        continue;
+      }
+      
+      console.log('✅ Token renovado exitosamente');
+    }
     
     try {
       const person = await buscarPersona(documentType, documentNumber, token);
@@ -98,7 +150,6 @@ async function main() {
     payload.color = getColorByName(row['COLOR'] || 'ROJO');
     payload.createdDate = new Date().getTime();
     payload.createdByUser = process.env.CREATED_BY_USER || 'FR0M';
-
 
     try {
       const result = await registrarNovedad(payload, token);

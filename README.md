@@ -1,89 +1,244 @@
-# Script Filiales
+# Script Filiales - Sistema de Gestión de Novedades
 
-Script para procesar datos de filiales y registrar novedades en el sistema.
+Sistema automatizado para el procesamiento de novedades en filiales, con manejo inteligente de autenticación y auditoría completa.
 
-## Instalación
+## 🚀 Características Principales
+
+- **Procesamiento Automatizado**: Lee archivos Excel y procesa novedades automáticamente
+- **Manejo Inteligente de Tokens**: Renovación automática cuando expiran (401)
+- **Auditoría Completa**: Registro detallado de todas las operaciones
+- **Manejo de Errores Robusto**: Reintentos automáticos y logging detallado
+- **Configuración Centralizada**: Variables de entorno organizadas y validadas
+
+## 🔐 Sistema de Autenticación
+
+### Manejo Automático de Tokens
+
+El sistema incluye un mecanismo inteligente para manejar la expiración de tokens:
+
+- **Cache de Tokens**: Almacena tokens válidos para evitar solicitudes innecesarias
+- **Renovación Automática**: Detecta errores 401 y renueva automáticamente el token
+- **Prevención de Expiración**: Renueva tokens antes de que expiren
+- **Reintentos Inteligentes**: Hasta 3 reintentos con delays apropiados
+
+### Funciones de Autenticación
+
+```typescript
+// Obtener token (con cache automático)
+const token = await getToken();
+
+// Verificar si expira pronto
+if (isTokenExpiringSoon()) {
+  token = await getToken();
+}
+
+// Limpiar token (forzar renovación)
+clearToken();
+
+// Información del token actual
+const info = getTokenInfo();
+```
+
+## 📊 Sistema de Auditoría
+
+### Campos Registrados
+
+El sistema de auditoría captura **todos los campos del payload** incluyendo:
+
+- **Información Básica**: Número de fila, tipo documento, número documento
+- **Categorización**: Categoría, subcategoría, descripción
+- **Estado del Proceso**: Estado, código de novedad, mensajes de error
+- **Campos del Payload**: Todos los campos enviados a la API
+- **Metadatos**: Timestamp de procesamiento, información de usuarios
+
+### Generación de Reportes
+
+- **Formato Excel**: Reportes detallados con múltiples hojas
+- **Resumen Ejecutivo**: Métricas de éxito y fallos
+- **Trazabilidad Completa**: Seguimiento de cada registro procesado
+
+## ⚙️ Configuración
+
+### Variables de Entorno Requeridas
+
+```bash
+# Autenticación
+AUTH_USERNAME=tu_usuario
+AUTH_PASSWORD=tu_password
+AUTH_CLIENT_ID=SISEGV2-WEB
+AUTH_URL=https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token
+
+# API
+API_URL_BASE=https://aplpre.favorita.ec
+
+# Configuración de Negocio
+WORK_AREA_CODE=22352
+CAM_LOCATION=LCD
+CAM_SUB_LOCATION=CAB
+DESCRIPTION_LOCATION=FILIAL
+DETECTED_BY_EMPLOYEE=1713109047
+CREATED_BY_EMPLOYEE=1713109047
+EMPLOYEE_PERSON_CODE_CREATED=69265
+EMPLOYEE_PERSON_CODE_DETECTED=69265
+CREATED_BY_USER=FR0M
+
+# Archivos
+INPUT_FILE=remake.xlsx
+```
+
+### Archivo de Configuración
+
+El sistema incluye un archivo `src/config.ts` que centraliza toda la configuración:
+
+```typescript
+export const config = {
+  api: {
+    baseUrl: process.env.API_URL_BASE ?? 'https://aplpre.favorita.ec',
+    timeout: {
+      default: 30000,
+      register: 60000,
+      catalogs: 30000
+    }
+  },
+  auth: {
+    tokenRefreshThreshold: 300000, // 5 minutos
+    maxRetries: 3,
+    retryDelay: 1000
+  }
+  // ... más configuración
+};
+```
+
+## 🧪 Pruebas
+
+### Pruebas de Gestión de Tokens
+
+```bash
+# Ejecutar pruebas de autenticación
+npx ts-node src/test-token.ts
+```
+
+Este script verifica:
+- Obtención de tokens
+- Cache de tokens
+- Renovación automática
+- Limpieza de tokens
+- Detección de expiración
+
+## 📁 Estructura del Proyecto
+
+```
+Script Filiales/
+├── src/
+│   ├── auth.ts          # Gestión de autenticación y tokens
+│   ├── api.ts           # Llamadas a la API con manejo de tokens
+│   ├── config.ts        # Configuración centralizada
+│   ├── audit.ts         # Sistema de auditoría
+│   ├── index.ts         # Punto de entrada principal
+│   └── test-token.ts    # Pruebas de autenticación
+├── assets/              # Archivos Excel de entrada
+├── audit/               # Reportes de auditoría generados
+└── package.json
+```
+
+## 🚀 Uso
+
+### Instalación
 
 ```bash
 npm install
 ```
 
-## Configuración de Variables de Entorno
-
-El proyecto utiliza archivos de variables de entorno para configurar diferentes entornos:
-
-- `.env.production`: Configuración para entorno de producción
-- `.env.test`: Configuración para entorno de pruebas
-- `.env.example`: Ejemplo de configuración (no se usa directamente)
-
-Para usar uno de estos archivos, puede:
-
-1. Copiar manualmente el archivo deseado a `.env`:
-   
-   En macOS/Linux:
-   ```bash
-   cp .env.production .env
-   ```
-   
-   En Windows:
-   ```bash
-   copy .env.production .env
-   ```
-
-2. O usar los scripts predefinidos que hacen esto automáticamente:
-   ```bash
-   npm run start:prod  # Usa configuración de producción
-   npm run start:test  # Usa configuración de pruebas
-   ```
-
-## Variables de Entorno Disponibles
-
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| API_URL_BASE | URL base de la API | https://aplpre.favorita.ec |
-| AUTH_URL | URL de autenticación | https://aplpre.favorita.ec/auth/realms/CFAVORITA-SSO-INTRANET/protocol/openid-connect/token |
-| AUTH_CLIENT_ID | ID de cliente para autenticación | SISEGV2-WEB |
-| AUTH_USERNAME | Usuario para autenticación | smxadmin |
-| AUTH_PASSWORD | Contraseña para autenticación | Password01. |
-| WORK_AREA_CODE | Código de área de trabajo | 22352 |
-| EMPLOYEE_PERSON_CODE_CREATED | Código de persona del empleado que crea | 69265 |
-| EMPLOYEE_PERSON_CODE_DETECTED | Código de persona del empleado que detecta | 69265 |
-| DETECTED_BY_EMPLOYEE | ID del empleado que detecta | 1713109047 |
-| CREATED_BY_EMPLOYEE | ID del empleado que crea | 1713109047 |
-| CREATED_BY_USER | Usuario que crea | FR0M |
-| CAM_LOCATION | Ubicación de cámara | LCD |
-| CAM_SUB_LOCATION | Sub-ubicación de cámara | CAB |
-| DESCRIPTION_LOCATION | Descripción de ubicación | FILIAL |
-
-## Ejecución
-
-### Comandos Estándar
-
-Los siguientes comandos funcionan en la mayoría de los sistemas operativos:
+### Ejecución
 
 ```bash
-# Usando la configuración en .env (si existe)
+# Procesar novedades
 npm start
 
-# Usando configuración de producción
-npm run start:prod
+# Ejecutar con archivo específico
+INPUT_FILE=prod.xlsx npm start
 
-# Usando configuración de pruebas
-npm run start:test
+# Ejecutar pruebas de token
+npx ts-node src/test-token.ts
 ```
 
-### Comandos Específicos para Windows
+## 🔍 Monitoreo y Logs
 
-Si experimentas problemas con los comandos estándar en Windows (como el error "'cp' no se reconoce como un comando interno o externo"), utiliza estos comandos alternativos:
+El sistema proporciona logs detallados para monitoreo:
 
-```bash
-# Usando configuración de producción en Windows
-npm run start:prod:win
+- `🔑` - Operaciones de autenticación
+- `🔄` - Renovación de tokens
+- `✅` - Operaciones exitosas
+- `❌` - Errores y fallos
+- `📊` - Información de auditoría
+- `🧪` - Pruebas y validaciones
 
-# Usando configuración de pruebas en Windows
-npm run start:test:win
+## 🛡️ Manejo de Errores
+
+### Estrategias de Recuperación
+
+1. **Reintentos Automáticos**: Hasta 3 intentos para operaciones fallidas
+2. **Renovación de Tokens**: Automática ante errores 401
+3. **Fallback Graceful**: Continúa procesamiento con registros válidos
+4. **Logging Detallado**: Registra todos los errores para análisis
+
+### Tipos de Errores Manejados
+
+- **401 Unauthorized**: Renovación automática de token
+- **Timeout**: Reintentos con delays apropiados
+- **Errores de Red**: Manejo de conexiones inestables
+- **Errores de Validación**: Registro en auditoría para revisión
+
+## 📈 Métricas y Reportes
+
+### Reporte de Auditoría
+
+- **Resumen Ejecutivo**: Total de registros, éxitos, fallos
+- **Detalle por Registro**: Información completa de cada operación
+- **Análisis de Errores**: Categorización y mensajes de error
+- **Trazabilidad**: Seguimiento completo del procesamiento
+
+### Métricas Clave
+
+- Tasa de éxito del procesamiento
+- Tiempo promedio por registro
+- Distribución de tipos de error
+- Eficiencia del sistema de tokens
+
+## 🔧 Mantenimiento
+
+### Limpieza de Tokens
+
+```typescript
+// Forzar renovación de token
+clearToken();
+
+// Verificar estado del token
+const info = getTokenInfo();
 ```
 
-Estos comandos utilizan un script JavaScript (`scripts/copy-env.js`) para copiar los archivos de configuración, evitando así el uso de comandos específicos del sistema operativo como `cp` o `copy`.
+### Monitoreo de Performance
 
-> **Nota para usuarios de Windows**: Si los comandos estándar no funcionan, asegúrate de usar los comandos con sufijo `:win` que están específicamente diseñados para ser compatibles con Windows.
+- Timeouts configurables por operación
+- Delays entre reintentos
+- Cache de tokens con expiración inteligente
+- Logging de métricas de performance
+
+## 📝 Notas de Desarrollo
+
+- **TypeScript**: Código completamente tipado
+- **Async/Await**: Manejo moderno de promesas
+- **Error Handling**: Manejo robusto de errores
+- **Configuration**: Configuración centralizada y validada
+- **Testing**: Scripts de prueba incluidos
+
+## 🤝 Contribución
+
+1. Mantener documentación en inglés
+2. Seguir estándares de TypeScript
+3. Incluir pruebas para nuevas funcionalidades
+4. Actualizar configuración según sea necesario
+
+## 📄 Licencia
+
+Proyecto interno de Favorita - Uso restringido a la organización.
